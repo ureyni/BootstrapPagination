@@ -1,12 +1,8 @@
 # BootstrapPagination
 
-
-
-var config = { totalCount: 257, // total record size </br>
-               length: 10, // how many size per page.</br>
-               ownerObjId : ["divPaginationTop","divPaginationBottom"] // Top/Parent parent Object</br>
-}</br>
-</br>
-</br>
-AppPagination.init(config);</br>
-AppPagination.show();</br>
+	var config = { totalCount: 257, // total record size 
+    	           length: 10, // how many size per page.
+        	       ownerObjId : ["divPaginationTop","divPaginationBottom"] // Top/Parent parent Object
+	}
+	AppPagination.init(config);
+	AppPagination.show();
