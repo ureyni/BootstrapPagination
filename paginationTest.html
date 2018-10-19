@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Hasan Ucak bootstrap pagination">
+  <meta name="author" content="hasan.ucak@gmail.com">
+  <meta name="keyword" content=",">
+  <link rel="shortcut icon" href="img/favicon.png">
+  <title>Bootstrap Pagination Jquery</title>
+
+  <!-- Latest compiled and minified CSS -->
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+</head>
+
+
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+<div class="animated fadeIn">
+  <input type="button" id="btnNext" value=""/>
+  <input type="button" id="btnprevious" value=""/>
+  <input type="button" id="btnClick"  onclick="setClickEvent()" value="setClickEvent"/>
+  <div class="card">
+    <div id="divPaginationTop"></div>
+    <div id="divPaginationBottom"></div>
+
+  </div>
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<!-- Latest compiled and minified bootstrap JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<script type="text/javascript">
+  
+AppPagination = null;
+AppPagination = {
+    init: function (config) {
+        AppPagination.start = 1;
+        AppPagination.currentPageNumber = 1;
+        AppPagination.length = 10;
+        AppPagination.totalCount = 99999;
+        AppPagination.last = 99;
+        AppPagination.shortlength = 5;
+        AppPagination.PageMaxSize = 0;
+        AppPagination.ownerObjId = 'divPagination';
+
+        if (typeof config.ownerObjId === 'string' || 
+              typeof config.ownerObjId === 'object')
+            AppPagination.ownerObjId = config.ownerObjId;
+
+        if (typeof config.start === 'number')
+            AppPagination.start = config.start;
+
+        if (typeof config.length === 'number')
+            AppPagination.length = config.length;
+
+        if (typeof config.totalCount === 'number')
+            AppPagination.totalCount = config.totalCount;
+
+        if (typeof config.shortlength === 'number')
+            AppPagination.shortlength = config.shortlength;
+
+        if (typeof config.total === 'number')
+            AppPagination.total = config.total;
+
+        AppPagination.PageMaxSize = Math.ceil(AppPagination.totalCount / AppPagination.length);
+
+        AppPagination.firstLink = '<li class="page-item"><a class="page-link" data-value="0" href="#">First</a></li>';
+        AppPagination.previousLink = '<li class="page-item">' +
+            '<a class="page-link" href="#" data-value="-1" aria-label="Previous">' +
+            '<span aria-hidden="true">«</span>' +
+            '<span class="sr-only">Previous</span>' +
+            '</a>' +
+            '</li>';
+
+        AppPagination.nextLink = '<li class="page-item">' +
+            '<a class="page-link" href="#" data-value="+1" aria-label="Next">' +
+            '<span aria-hidden="true">»</span>' +
+            '<span class="sr-only">Next</span>' +
+            '</a>' +
+            '</li>';
+
+        AppPagination.lastLink = '<li class="page-item"><a class="page-link" data-value="9999" href="#">Last(' + AppPagination.PageMaxSize + ')</a></li>' ;
+        AppPagination.pagination = '';
+
+    },
+    show : function(){
+        AppPagination.pagination = '';
+        AppPagination.paginationStart = '<nav aria-label="Page navigation example">' +
+            '<ul class="pagination pagination-sm justify-content-end">';
+
+        //if display numbers greater then 5 , display first end previous link
+        AppPagination.reconfig();  
+        if (AppPagination.start > 1)
+            AppPagination.paginationStart += AppPagination.firstLink + AppPagination.previousLink;
+
+
+        if (AppPagination.PageMaxSize<AppPagination.start + AppPagination.shortlength)
+            MaxValue = AppPagination.PageMaxSize;
+
+        var i = 0;
+        for (i = AppPagination.start; i < AppPagination.start + AppPagination.shortlength + 1 && i < AppPagination.PageMaxSize + 1 ; i++) {
+            if (i == AppPagination.currentPageNumber)
+                AppPagination.pagination += '<li class="page-item active">';
+            else  
+                AppPagination.pagination += '<li class="page-item">';
+            AppPagination.pagination += '<a class="page-link" data-value="' + i + '" href="#">' + i + '</a>';
+//            if (i == AppPagination.currentPageNumber)
+//                AppPagination.pagination += '<span class="sr-only">(current)</span>';
+
+            AppPagination.pagination += '</li>';
+
+        }
+        AppPagination.paginationEnd = '';
+
+        if (AppPagination.PageMaxSize > (i-1))
+            AppPagination.paginationEnd +=  AppPagination.nextLink + AppPagination.lastLink;
+
+        AppPagination.paginationEnd += '</ul></nav>';
+
+        AppPagination.pagination = AppPagination.paginationStart + AppPagination.pagination + AppPagination.paginationEnd;
+        AppPagination.addParent();
+
+    },
+    next: function () {
+        AppPagination.currentPageNumber++;
+        if (AppPagination.currentPageNumber > AppPagination.PageMaxSize)
+          AppPagination.currentPageNumber = AppPagination.PageMaxSize;
+        AppPagination.show();
+    },
+    previous: function () {
+        AppPagination.currentPageNumber--;
+        if (AppPagination.currentPageNumber < 1 )
+          AppPagination.currentPageNumber = 1;
+        AppPagination.show();
+    },
+    first: function () {
+        AppPagination.currentPageNumber = 1;
+        AppPagination.show();
+    },
+    last: function () {
+        AppPagination.currentPageNumber = AppPagination.PageMaxSize;
+        AppPagination.show();
+    },
+    // setting config variables.
+    reconfig: function () {
+      var start = AppPagination.currentPageNumber - Math.ceil(AppPagination.shortlength / 2 ) + 1;
+      if (start < 1)
+        start = 1;
+      if (start + AppPagination.shortlength > AppPagination.PageMaxSize )
+          start = AppPagination.PageMaxSize - AppPagination.shortlength;
+      AppPagination.start = start;
+      console.log("Reconfig : " + Math.abs(start + AppPagination.shortlength) + ":" + typeof Math.abs(start + AppPagination.shortlength));
+
+    },
+    addParent: function () {
+      if (typeof AppPagination.ownerObjId === 'string') {
+        $('#' + AppPagination.ownerObjId).html(AppPagination.pagination);
+        return true;
+      }
+      if (typeof AppPagination.ownerObjId === 'object') {
+          $.each(AppPagination.ownerObjId,function(key,value){
+              $('#' + value).html(AppPagination.pagination);  
+          });  
+
+    }
+  }
+
+}
+
+var config = { totalCount: 257,
+               length: 10, 
+               ownerObjId : ["divPaginationTop","divPaginationBottom"]
+
+}
+
+AppPagination.init(config);
+AppPagination.show();
+
+$("#btnNext").click(function () {
+  AppPagination.next();
+  $(this).val(AppPagination.currentPageNumber);  
+  setClickEvent();
+  console.log(AppPagination.currentPageNumber);
+  });
+
+$("#btnprevious").click(function () {
+  AppPagination.previous();
+  $(this).val(AppPagination.currentPageNumber);  
+  setClickEvent();
+  console.log(AppPagination.currentPageNumber);
+  });
+
+
+function setClickEvent() {
+    $(".page-link").click(function () {
+        if ($(this).attr('aria-label') == 'Next')
+            AppPagination.currentPageNumber++;
+        else if ($(this).attr('aria-label') == 'Previous')
+            AppPagination.currentPageNumber--;
+        else
+            AppPagination.currentPageNumber = $(this).data('value');
+        AppPagination.show();
+        console.log(AppPagination.currentPageNumber);
+    });
+
+}
+
+setClickEvent();
+
+</script>  
+
+
+</body>
+</html>
